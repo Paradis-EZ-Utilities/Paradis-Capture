@@ -1,0 +1,24 @@
+<!-- The Paradis Capture wordmark: "PARADISE" with the final E scratched out, then "CAPTURE".
+     Drawn with Segoe UI and two strokes, so it needs no image or font files. Set Height to size it. -->
+<UserControl x:Class="ParadisCapture.UI.Wordmark"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             IsTabStop="False" Focusable="False"
+             AutomationProperties.Name="Paradis Capture">
+  <Viewbox Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center">
+    <StackPanel Orientation="Horizontal" TextOptions.TextFormattingMode="Ideal" SnapsToDevicePixels="False">
+      <TextBlock Text="PARADIS" FontFamily="Segoe UI" FontWeight="Bold" FontSize="28"
+                 Foreground="{StaticResource Text}" />
+      <Grid>
+        <TextBlock Text="E" FontFamily="Segoe UI" FontWeight="Bold" FontSize="28"
+                   Foreground="{StaticResource TextDim}" Opacity="0.6" />
+        <!-- Two quick hand-drawn strokes across the cap height of the E. -->
+        <Path Stretch="Fill" Margin="-3,8,-3,5" Stroke="{StaticResource Record}" StrokeThickness="2.6"
+              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+              Data="M0,8 C3,6.6 6.4,3.6 10,0.6 M0.8,9.4 C4,7.6 7,5.2 10.4,2.6" />
+      </Grid>
+      <TextBlock Text="CAPTURE" FontFamily="Segoe UI" FontWeight="Light" FontSize="28" Margin="9,0,0,0"
+                 Foreground="{StaticResource Text}" />
+    </StackPanel>
+  </Viewbox>
+</UserControl>

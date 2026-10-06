@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- 10.0.26100 is the Windows SDK the WinRT projection is compiled against; newer APIs are
+         feature-checked at runtime. The app itself runs on Windows 10 2004 (19041) and later. -->
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyName>ParadisCapture</AssemblyName>
+    <RootNamespace>ParadisCapture</RootNamespace>
+    <!-- Shown as the exe's "File description" in Explorer and Task Manager. -->
+    <AssemblyTitle>Paradis Capture</AssemblyTitle>
+    <Description>Paradis Capture — Simple Screen &amp; Audio Recorder</Description>
+    <!-- Lets the project build (not run) on non-Windows machines / CI. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- Built-in COM interop is used by NAudio and the WinRT interop interfaces; keep it untrimmed. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <!-- WFO0003 asks for the WinForms high-DPI API, but this is a WPF app that only uses WinForms
+         for the tray icon; per-monitor DPI awareness belongs in app.manifest here. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WinForms is only used for the tray icon; don't import its namespace globally (it clashes with WPF). -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageReference Include="Vortice.MediaFoundation" Version="3.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ParadisCapture.Core\ParadisCapture.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\recording.ico" />
+    <Resource Include="Assets\logo-256.png" />
+  </ItemGroup>
+
+</Project>

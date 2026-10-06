@@ -1,0 +1,112 @@
+<Window x:Class="ParadisCapture.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ParadisCapture.UI"
+        Title="Paradis Capture" Width="380" SizeToContent="Height"
+        ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Background}" UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display" FontFamily="Segoe UI">
+  <Grid Margin="18">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Brand -->
+    <StackPanel Grid.Row="0" Margin="0,0,0,20">
+      <local:Wordmark Height="30" HorizontalAlignment="Left" />
+      <TextBlock Text="Simple Screen &amp; Audio Recorder" Style="{StaticResource Caption}" FontSize="12"
+                 Margin="1,1,0,0" />
+    </StackPanel>
+
+    <!-- Capture target -->
+    <StackPanel Grid.Row="1">
+      <TextBlock Text="CAPTURE" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+      <UniformGrid Columns="3" Rows="1">
+        <Button x:Name="WindowButton" Style="{StaticResource TargetButton}" Margin="0,0,6,0"
+                Click="OnSelectWindow" HorizontalContentAlignment="Center" Content="Window" />
+        <Button x:Name="RegionButton" Style="{StaticResource TargetButton}" Margin="3,0,3,0"
+                Click="OnSelectRegion" HorizontalContentAlignment="Center" Content="Region" />
+        <Button x:Name="MonitorButton" Style="{StaticResource TargetButton}" Margin="6,0,0,0"
+                Click="OnSelectMonitor" HorizontalContentAlignment="Center" Content="Monitor" />
+      </UniformGrid>
+
+      <Border Margin="0,10,0,0" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}"
+              BorderThickness="1" CornerRadius="6" Padding="12,10">
+        <StackPanel>
+          <TextBlock x:Name="TargetText" Text="Nothing selected yet" TextTrimming="CharacterEllipsis" />
+          <TextBlock x:Name="TargetDetailText" Style="{StaticResource Caption}" Margin="0,4,0,0"
+                     Text="Choose a window, a region or a monitor above." TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+
+    <!-- Audio -->
+    <StackPanel Grid.Row="2" Margin="0,18,0,0">
+      <TextBlock Text="AUDIO" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+      <Grid Margin="0,2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Computer audio" VerticalAlignment="Center" />
+        <ToggleButton x:Name="SystemAudioToggle" Grid.Column="1" Style="{StaticResource Switch}"
+                      Checked="OnAudioToggled" Unchecked="OnAudioToggled" />
+      </Grid>
+      <Grid Margin="0,10,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Microphone" VerticalAlignment="Center" />
+        <ToggleButton x:Name="MicrophoneToggle" Grid.Column="1" Style="{StaticResource Switch}"
+                      Checked="OnAudioToggled" Unchecked="OnAudioToggled" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Save location -->
+    <StackPanel Grid.Row="3" Margin="0,18,0,0">
+      <TextBlock Text="SAVE TO" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="FolderText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                   Foreground="{StaticResource TextDim}" Cursor="Hand" MouseLeftButtonUp="OnOpenFolder"
+                   ToolTip="Open this folder" />
+        <Button Grid.Column="1" Style="{StaticResource FlatButton}" Content="Change" Margin="10,0,0,0"
+                Padding="12,6" Click="OnChangeFolder" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Record -->
+    <Button x:Name="RecordButton" Grid.Row="4" Style="{StaticResource RecordButton}" Margin="0,20,0,0"
+            HorizontalContentAlignment="Center" Click="OnRecord" Content="RECORD" />
+
+    <TextBlock x:Name="StatusText" Grid.Row="5" Style="{StaticResource Caption}" Margin="0,10,0,0"
+               TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" />
+
+    <!-- Footer -->
+    <Grid Grid.Row="6" Margin="0,14,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <TextBlock Style="{StaticResource Caption}" Text="Settings" Cursor="Hand"
+                   MouseLeftButtonUp="OnOpenSettings" TextDecorations="Underline" VerticalAlignment="Center" />
+        <TextBlock x:Name="PresetText" Style="{StaticResource Caption}" Margin="8,0,0,0" VerticalAlignment="Center"
+                   Cursor="Hand" MouseLeftButtonUp="OnOpenSettings" ToolTip="Quality and frame rate (change in Settings)" />
+      </StackPanel>
+      <TextBlock x:Name="HotkeyHintText" Grid.Column="2" Style="{StaticResource Caption}"
+                 VerticalAlignment="Center" />
+    </Grid>
+  </Grid>
+</Window>

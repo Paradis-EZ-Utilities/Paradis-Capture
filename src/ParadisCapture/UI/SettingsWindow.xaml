@@ -1,0 +1,137 @@
+<Window x:Class="ParadisCapture.UI.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ParadisCapture.UI"
+        Title="Settings" Width="440" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{StaticResource Background}" FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+  <Grid>
+  <StackPanel x:Name="SettingsPanel" Margin="20">
+
+    <TextBlock Text="SAVE FOLDER" Style="{StaticResource Caption}" />
+    <Grid Margin="0,6,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBox x:Name="FolderBox" Style="{StaticResource TextBoxStyle}" IsReadOnly="True"
+               VerticalContentAlignment="Center" />
+      <Button Grid.Column="1" Style="{StaticResource FlatButton}" Content="Browse" Margin="8,0,0,0"
+              Padding="12,6" Click="OnBrowse" />
+    </Grid>
+
+    <TextBlock Text="VIDEO" Style="{StaticResource Caption}" Margin="0,20,0,6" />
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="Frame rate" VerticalAlignment="Center" />
+      <ComboBox x:Name="FpsBox" Grid.Column="1" Width="150" SelectedIndex="0">
+        <ComboBoxItem Content="30 FPS (recommended)" Tag="30" />
+        <ComboBoxItem Content="60 FPS (games)" Tag="60" />
+      </ComboBox>
+    </Grid>
+    <Grid Margin="0,10,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="Quality" VerticalAlignment="Center" />
+      <ComboBox x:Name="QualityBox" Grid.Column="1" Width="150" SelectedIndex="1">
+        <ComboBoxItem Content="Compact (classes)" Tag="Compact" />
+        <ComboBoxItem Content="Standard" Tag="Standard" />
+        <ComboBoxItem Content="High (games, motion)" Tag="High" />
+      </ComboBox>
+    </Grid>
+    <TextBlock x:Name="BitrateHint" Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap" />
+    <CheckBox x:Name="CursorBox" Content="Include the mouse cursor" Margin="0,12,0,0" />
+
+    <TextBlock Text="AUDIO" Style="{StaticResource Caption}" Margin="0,20,0,6" />
+    <CheckBox x:Name="SystemAudioBox" Content="Record computer audio" />
+    <Grid Margin="0,8,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="From" VerticalAlignment="Center" Margin="22,0,8,0" Foreground="{StaticResource TextDim}" />
+      <ComboBox x:Name="OutputDeviceBox" Grid.Column="1" DisplayMemberPath="Name" />
+    </Grid>
+
+    <CheckBox x:Name="MicrophoneCheck" Content="Record microphone" Margin="0,14,0,0" />
+    <Grid Margin="0,8,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="From" VerticalAlignment="Center" Margin="22,0,8,0" Foreground="{StaticResource TextDim}" />
+      <ComboBox x:Name="MicrophoneDeviceBox" Grid.Column="1" DisplayMemberPath="Name" />
+    </Grid>
+
+    <TextBlock Text="HOTKEYS" Style="{StaticResource Caption}" Margin="0,20,0,6" />
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="Start / stop recording" VerticalAlignment="Center" />
+      <TextBox x:Name="StartStopBox" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Width="150"
+               IsReadOnly="True" Cursor="Hand" PreviewKeyDown="OnHotkeyKeyDown" GotFocus="OnHotkeyFocus"
+               LostFocus="OnHotkeyBlur" TextAlignment="Center" ToolTip="Click, then press the keys you want" />
+      <Button Grid.Column="2" Style="{StaticResource FlatButton}" Content="✕" Padding="9,6" Margin="6,0,0,0"
+              Click="OnClearStartStop" ToolTip="Turn this hotkey off" />
+    </Grid>
+    <Grid Margin="0,8,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock Text="Pause / resume" VerticalAlignment="Center" />
+      <TextBox x:Name="PauseResumeBox" Grid.Column="1" Style="{StaticResource TextBoxStyle}" Width="150"
+               IsReadOnly="True" Cursor="Hand" PreviewKeyDown="OnHotkeyKeyDown" GotFocus="OnHotkeyFocus"
+               LostFocus="OnHotkeyBlur" TextAlignment="Center" ToolTip="Click, then press the keys you want" />
+      <Button Grid.Column="2" Style="{StaticResource FlatButton}" Content="✕" Padding="9,6" Margin="6,0,0,0"
+              Click="OnClearPauseResume" ToolTip="Turn this hotkey off" />
+    </Grid>
+    <TextBlock x:Name="HotkeyHint" Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap"
+               Text="Hotkeys work even while another app has focus. They need at least one of Ctrl, Alt, Shift or Win." />
+
+    <CheckBox x:Name="HideControlsBox" Content="Hide the recording bar to the tray when recording starts"
+              Margin="0,18,0,0" />
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+      <TextBlock Style="{StaticResource Caption}" Text="About" Cursor="Hand" VerticalAlignment="Center"
+                 TextDecorations="Underline" MouseLeftButtonUp="OnShowAbout" Margin="0,0,14,0" />
+      <TextBlock Style="{StaticResource Caption}" Text="Open log folder" Cursor="Hand" VerticalAlignment="Center"
+                 TextDecorations="Underline" MouseLeftButtonUp="OnOpenLogs" Margin="0,0,16,0" />
+      <Button Style="{StaticResource FlatButton}" Content="Cancel" Padding="14,7" Click="OnCancel" IsCancel="True" />
+      <Button Style="{StaticResource FlatButton}" Content="Save" Padding="18,7" Margin="8,0,0,0"
+              Click="OnSave" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+
+  <!-- About: shown in place of the settings when "About" is clicked. -->
+  <StackPanel x:Name="AboutPanel" Margin="20" Visibility="Collapsed">
+    <StackPanel Orientation="Horizontal">
+      <Image Source="/Assets/logo-256.png" Width="48" Height="48" RenderOptions.BitmapScalingMode="HighQuality" />
+      <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
+        <local:Wordmark Height="22" HorizontalAlignment="Left" />
+        <TextBlock Text="Simple Screen &amp; Audio Recorder" Style="{StaticResource Caption}" FontSize="12" Margin="1,1,0,0" />
+      </StackPanel>
+    </StackPanel>
+    <TextBlock x:Name="VersionText" Text="Version 1.0.0" Margin="0,18,0,0" />
+    <TextBlock Text="A small, local Windows recording utility." Margin="0,12,0,0" />
+    <TextBlock Text="No accounts. No telemetry. No uploads." Margin="0,2,0,0" />
+    <TextBlock Text="Created by D.Y. Paradis" Margin="0,12,0,0" />
+    <TextBlock Style="{StaticResource Caption}" Margin="0,16,0,0" TextWrapping="Wrap"
+               Text="Uses NAudio and Vortice.Windows (MIT License). Video and audio are encoded by Windows' own H.264 and AAC encoders. See THIRD_PARTY_NOTICES.md." />
+    <Button Style="{StaticResource FlatButton}" Content="Back" Padding="18,7" Margin="0,20,0,0"
+            HorizontalAlignment="Right" Click="OnHideAbout" />
+  </StackPanel>
+  </Grid>
+  </ScrollViewer>
+</Window>

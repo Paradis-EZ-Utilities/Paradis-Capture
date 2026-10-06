@@ -1,0 +1,18 @@
+<Window x:Class="ParadisCapture.UI.SavedWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Recording saved" SizeToContent="Height" Width="420"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False"
+        Background="{StaticResource Background}" FontFamily="Segoe UI"
+        TextOptions.TextFormattingMode="Display">
+  <StackPanel Margin="20">
+    <TextBlock Text="Recording saved" FontSize="16" FontWeight="SemiBold" />
+    <TextBlock x:Name="FileText" Margin="0,12,0,0" TextWrapping="Wrap" />
+    <TextBlock x:Name="DetailText" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+      <Button Style="{StaticResource FlatButton}" Content="Open Folder" Click="OnOpenFolder" />
+      <Button Style="{StaticResource FlatButton}" Content="Play" Margin="8,0,0,0" Click="OnPlay" />
+      <Button Style="{StaticResource FlatButton}" Content="Done" Margin="8,0,0,0" Click="OnDone" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</Window>

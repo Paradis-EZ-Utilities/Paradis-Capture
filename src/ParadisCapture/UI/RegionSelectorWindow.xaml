@@ -1,0 +1,46 @@
+<Window x:Class="ParadisCapture.UI.RegionSelectorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ShowInTaskbar="False" Topmost="True" ResizeMode="NoResize"
+        Cursor="Cross" Focusable="True" SnapsToDevicePixels="True"
+        UseLayoutRounding="False">
+  <!-- One of these covers each monitor. Everything is positioned in device-independent units
+       converted from physical pixels, so the selection matches the recorded pixels exactly. -->
+  <Grid x:Name="Root">
+    <!-- Dim overlay with the selection punched out -->
+    <Path x:Name="Dim" Fill="#80000000">
+      <Path.Data>
+        <CombinedGeometry GeometryCombineMode="Exclude">
+          <CombinedGeometry.Geometry1>
+            <RectangleGeometry x:Name="FullGeometry" />
+          </CombinedGeometry.Geometry1>
+          <CombinedGeometry.Geometry2>
+            <RectangleGeometry x:Name="HoleGeometry" />
+          </CombinedGeometry.Geometry2>
+        </CombinedGeometry>
+      </Path.Data>
+    </Path>
+
+    <Rectangle x:Name="SelectionBorder" Stroke="#4C8DFF" StrokeThickness="1.5"
+               HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed"
+               IsHitTestVisible="False" />
+
+    <Border x:Name="SizeLabel" Background="#CC1E1F22" CornerRadius="4" Padding="8,5"
+            HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed"
+            IsHitTestVisible="False" BorderBrush="#3C4046" BorderThickness="1">
+      <TextBlock x:Name="SizeText" Foreground="#F2F3F5" FontFamily="Segoe UI" FontSize="12" />
+    </Border>
+
+    <Border x:Name="Hint" Background="#E61E1F22" CornerRadius="8" Padding="18,12"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            BorderBrush="#3C4046" BorderThickness="1" IsHitTestVisible="False">
+      <StackPanel>
+        <TextBlock Text="Drag to choose the area to record" Foreground="#F2F3F5"
+                   FontFamily="Segoe UI" FontSize="15" HorizontalAlignment="Center" />
+        <TextBlock Text="Press Esc to cancel" Foreground="#9BA1A8" Margin="0,6,0,0"
+                   FontFamily="Segoe UI" FontSize="12" HorizontalAlignment="Center" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>
