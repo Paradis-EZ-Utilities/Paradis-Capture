@@ -33,7 +33,7 @@ dotnet run --project src/ParadisCapture
 dotnet test
 ```
 
-Runs the 46 unit tests for `ParadisCapture.Core`. They take a couple of minutes, mostly in the
+Runs the 49 unit tests for `ParadisCapture.Core`. They take a couple of minutes, mostly in the
 simulated three-hour audio-drift tests. They need no Windows and no audio or video hardware.
 
 ## Publish a self-contained executable

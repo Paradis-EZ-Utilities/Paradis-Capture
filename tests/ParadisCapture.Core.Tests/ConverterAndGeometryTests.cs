@@ -95,35 +95,97 @@ public class GeometryTests
         Assert.Equal(1080, tiny.Bottom);
     }
 
+    private static readonly (int W, int H)[] CommonSizes =
+        { (640, 480), (1280, 720), (1600, 900), (1920, 1080), (2560, 1440), (3840, 2160) };
+
     [Fact]
-    public void HighPresetKeepsTheOriginalBitrate()
+    public void CompactAndStandardAreUnchangedFrom100()
     {
-        int b1080p30 = EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.High);
-        int b1080p60 = EncoderSettings.BitrateFor(1920, 1080, 60, VideoQuality.High);
-        Assert.InRange(b1080p30, 7_000_000, 8_000_000);
-        Assert.InRange(b1080p60, b1080p30, b1080p30 * 2);
-        Assert.Equal(EncoderSettings.MinBitrateFor(VideoQuality.High), EncoderSettings.BitrateFor(64, 64, 30, VideoQuality.High));
+        // The 1.0.0 formula, copied verbatim: Standard is the tested default and must not drift.
+        static int V100(int w, int h, int fps, double reference, int floor) =>
+            (int)Math.Clamp(reference * Math.Pow((double)w * h / (1920.0 * 1080.0), 0.8) * Math.Pow(fps / 30.0, 0.75),
+                            floor, EncoderSettings.MaxBitrate);
+
+        foreach (var (w, h) in CommonSizes.Append((64, 64)))
+        foreach (int fps in new[] { 30, 60 })
+        {
+            Assert.Equal(V100(w, h, fps, 900_000, 300_000), EncoderSettings.BitrateFor(w, h, fps, VideoQuality.Compact));
+            Assert.Equal(V100(w, h, fps, 1_800_000, 600_000), EncoderSettings.BitrateFor(w, h, fps, VideoQuality.Standard));
+        }
+        Assert.Equal(1_800_000, EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Standard));
+        Assert.Equal(120, EncoderSettings.GopSizeFor(30, VideoQuality.Standard));
+        Assert.Equal(120, EncoderSettings.GopSizeFor(30, VideoQuality.Compact));
+
+        // A Compact 1080p30 class recording stays well under 0.5 GB per hour even at the full mean bitrate.
+        int v = EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Compact);
+        Assert.True(EncoderSettings.GigabytesPerHour(v, EncoderSettings.AudioBitrateFor(VideoQuality.Compact)) < 0.5);
+        // Standard matches the ~0.9 GB/hour measured on real 1080p30 recordings.
+        int sv = EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Standard);
+        Assert.InRange(EncoderSettings.GigabytesPerHour(sv, EncoderSettings.AudioBitrateFor(VideoQuality.Standard)), 0.8, 0.95);
     }
 
     [Fact]
-    public void CompactAndStandardHitTheirTargets()
+    public void HighAndMaximumHitTheirTargets()
     {
-        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Compact), 500_000, 1_000_000);
-        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Standard), 1_500_000, 2_000_000);
+        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.High), 4_500_000, 5_500_000);
+        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 60, VideoQuality.High), 8_000_000, 9_000_000);
+        // Maximum matches the original prototype's top level (0.18 bits per pixel per frame).
+        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Maximum), 11_000_000, 11_500_000);
+        Assert.InRange(EncoderSettings.BitrateFor(1920, 1080, 60, VideoQuality.Maximum), 18_500_000, 19_000_000);
+        // Maximum is at least as generous as the prototype's default level (0.12).
+        Assert.True(EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Maximum) > 7_500_000);
+        // 4K60 Maximum is high but stays under the cap rather than being clipped to it.
+        Assert.InRange(EncoderSettings.BitrateFor(3840, 2160, 60, VideoQuality.Maximum), 70_000_000, EncoderSettings.MaxBitrate - 1);
 
-        // Ordering holds at every common size and frame rate.
-        foreach (var (w, h) in new[] { (640, 480), (1280, 720), (1920, 1080), (2560, 1440), (3840, 2160) })
+        Assert.Equal(60, EncoderSettings.GopSizeFor(30, VideoQuality.High));
+        Assert.Equal(120, EncoderSettings.GopSizeFor(60, VideoQuality.Maximum));
+        Assert.Equal(EncoderSettings.MinBitrateFor(VideoQuality.High), EncoderSettings.BitrateFor(64, 64, 30, VideoQuality.High));
+        Assert.Equal(EncoderSettings.MinBitrateFor(VideoQuality.Maximum), EncoderSettings.BitrateFor(64, 64, 30, VideoQuality.Maximum));
+    }
+
+    [Fact]
+    public void PresetsAreOrderedAtEverySizeAndFrameRate()
+    {
+        foreach (var (w, h) in CommonSizes.Append((64, 64)).Append((320, 240)))
         foreach (int fps in new[] { 30, 60 })
         {
             int c = EncoderSettings.BitrateFor(w, h, fps, VideoQuality.Compact);
             int s = EncoderSettings.BitrateFor(w, h, fps, VideoQuality.Standard);
             int hi = EncoderSettings.BitrateFor(w, h, fps, VideoQuality.High);
-            Assert.True(c < s && s < hi, $"{w}x{h}@{fps}: {c} / {s} / {hi}");
+            int max = EncoderSettings.BitrateFor(w, h, fps, VideoQuality.Maximum);
+            Assert.True(c < s && s < hi && hi < max, $"{w}x{h}@{fps}: {c} / {s} / {hi} / {max}");
         }
+    }
 
-        // A Compact 1080p30 class recording stays well under 0.5 GB per hour even at the full mean bitrate.
-        int v = EncoderSettings.BitrateFor(1920, 1080, 30, VideoQuality.Compact);
-        Assert.True(EncoderSettings.GigabytesPerHour(v, EncoderSettings.AudioBitrateFor(VideoQuality.Compact)) < 0.5);
+    [Fact]
+    public void SixtyFpsGetsMoreBandwidthButLessThanDouble()
+    {
+        // From 720p up, where no preset sits on its floor.
+        foreach (var q in Enum.GetValues<VideoQuality>())
+        foreach (var (w, h) in CommonSizes.Where(s => s.W >= 1280))
+        {
+            int b30 = EncoderSettings.BitrateFor(w, h, 30, q);
+            int b60 = EncoderSettings.BitrateFor(w, h, 60, q);
+            Assert.True(b60 > b30 * 1.5 && b60 < b30 * 2, $"{q} {w}x{h}: {b30} -> {b60}");
+        }
+    }
+
+    [Fact]
+    public void SmallerRegionsGetLessBandwidth()
+    {
+        foreach (var q in Enum.GetValues<VideoQuality>())
+        foreach (int fps in new[] { 30, 60 })
+        {
+            int previous = 0;
+            foreach (var (w, h) in CommonSizes)
+            {
+                int b = EncoderSettings.BitrateFor(w, h, fps, q);
+                Assert.True(b > previous, $"{q} {w}x{h}@{fps}: {b} not above {previous}");
+                previous = b;
+            }
+            // A 720p region never gets the full-screen 1080p bitrate.
+            Assert.True(EncoderSettings.BitrateFor(1280, 720, fps, q) < EncoderSettings.BitrateFor(1920, 1080, fps, q) * 0.75);
+        }
     }
 
     [Fact]

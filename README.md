@@ -1,6 +1,9 @@
 # Paradis Capture
 
-**Simple Screen & Audio Recorder** · version 1.0.0 · Windows 10 (2004+) and 11, 64-bit
+**Simple Screen & Audio Recorder** · version 1.0.1 · Windows 10 (2004+) and 11, 64-bit
+
+Part of [**Paradis EZ Utilities**](https://github.com/Paradis-EZ-Utilities): small, simple, free.
+EZ.
 
 Paradis Capture is a lightweight Windows utility for recording:
 
@@ -11,8 +14,8 @@ Paradis Capture is a lightweight Windows utility for recording:
 - microphone audio
 
 The result is a normal `.mp4` file (H.264 video, AAC audio) that plays anywhere. You can pause
-and resume, record at 30 or 60 FPS, and pick a **Compact**, **Standard** or **High** quality
-preset depending on whether you're recording a lecture or a game.
+and resume, record at 30 or 60 FPS, and pick a **Compact**, **Standard**, **High** or
+**Maximum** quality preset in Settings depending on whether you're recording a lecture or a game.
 
 It runs entirely on your PC. There's no account, no telemetry, no uploads, no recording time
 limit and no watermark. No streaming, scenes or overlays either: it records and saves the file.
@@ -23,7 +26,7 @@ limit and no watermark. No streaming, scenes or overlays either: it records and 
 
 ### Getting it running
 
-Unzip `ParadisCapture-v1.0.0.zip` anywhere (your Desktop, Documents, a USB stick) and run
+Unzip `ParadisCapture-v1.0.1.zip` anywhere (your Desktop, Documents, a USB stick) and run
 `ParadisCapture.exe`. There's nothing to install: it carries its own copy of .NET. To build it
 yourself, see the [developer instructions](#for-developers).
 
@@ -100,7 +103,7 @@ Small on purpose:
 | --- | --- | --- |
 | Save folder | `Videos\Recordings` | |
 | Frame rate | 30 FPS | 60 FPS for games and playtests |
-| Quality | Standard | Compact / Standard / High, see below |
+| Quality | Standard | Compact / Standard / High / Maximum, see below |
 | Include the mouse cursor | On | |
 | Computer audio device | Follows Windows | |
 | Microphone device | Follows Windows | |
@@ -108,39 +111,57 @@ Small on purpose:
 | Hide the bar to the tray when recording starts | Off | |
 
 Settings are saved in `%LocalAppData%\ParadisCapture\settings.json` and remembered between
-launches. The main window shows the current quality and frame rate next to the Settings link.
-At the bottom of Settings are links to **About** and the log folder.
+launches. The main window shows the current quality and frame rate next to the Settings link;
+frame rate and quality are only changed in Settings, so the main window stays simple. At the
+bottom of Settings are links to **About** (version, credits and **More from Paradis EZ
+Utilities**) and the log folder.
 
 ### Quality presets and file size
 
+**Standard is the right choice for most people**, and it's the default. You only pick a preset
+in Settings; there are no bitrates or encoder options to understand.
+
+| Preset | Pick it for | Trade-off |
+| --- | --- | --- |
+| **Compact** | Classes, slides, Zoom/Teams, coding, mostly-still screens | Smallest files. Text stays sharp; fast motion looks softer |
+| **Standard** (default) | Everyday recording: classes, meetings, tutorials, workflows | Balanced. Small files, readable text and UI |
+| **High** | Games, playtests, animation, fast scrolling | Noticeably less smearing and blockiness in motion; bigger files |
+| **Maximum** | When picture quality matters more than disk space | Highest visual fidelity; largest files |
+
+**Frame rate:** 30 FPS is plenty for classes and desktop work. Use 60 FPS for smoother gameplay
+and motion; every preset automatically gives 60 FPS about 70% more bandwidth, so it isn't starved.
+
 The presets never change the resolution: a window or monitor is always recorded at its native
-size, so text stays sharp. They change how hard the video is compressed, how often a keyframe
-is written, and the audio bitrate.
+size. They change how hard the video is compressed, how often a keyframe is written, and the
+audio bitrate. The video bitrate is an *average* ceiling, not a fixed rate: the encoder spends
+less on a still screen and more during motion, so real files usually come out smaller than below.
+It also scales with what you record, so a small region gets proportionally less than a full
+1080p screen.
 
-| Preset | Meant for | Video at 1080p 30 FPS | Audio | Keyframe |
+Rough upper bounds per hour, full screen:
+
+| Recording | Compact | Standard | High | Maximum |
 | --- | --- | --- | --- | --- |
-| **Compact** | Lectures, slides, code, tutorials | ~0.9 Mbit/s | 96 kbit/s | every 4 s |
-| **Standard** | Most desktop recording | ~1.8 Mbit/s | 128 kbit/s | every 4 s |
-| **High** | Games, animation, fast motion | ~7.5 Mbit/s | 192 kbit/s | every 2 s |
+| 1080p 30 FPS | ~0.45 GB | ~0.9 GB | ~2.3 GB | ~5.1 GB |
+| 1080p 60 FPS | ~0.7 GB | ~1.4 GB | ~3.9 GB | ~8.6 GB |
+| 1440p 30 FPS | ~0.7 GB | ~1.3 GB | ~4.1 GB | ~9.0 GB |
 
-The video bitrate is an *average* ceiling, not a fixed rate. The encoder spends less on a still
-slide and briefly more while you scroll or switch windows, so real files usually come out
-smaller than the table suggests. The bitrate scales with the size of what you record: a
-1280 × 720 window gets roughly half the 1080p figure, a 4K monitor roughly three times. 60 FPS
-costs about 70% more than 30 FPS.
+<details>
+<summary>The numbers behind the presets</summary>
 
-Rough upper bounds per hour:
+| Preset | Video at 1080p30 / 1080p60 | Scaling with size | Audio | Keyframe |
+| --- | --- | --- | --- | --- |
+| Compact | 0.9 / 1.5 Mbit/s | `(pixels / 1080p)^0.8` | 96 kbit/s | every 4 s |
+| Standard | 1.8 / 3.0 Mbit/s | `(pixels / 1080p)^0.8` | 128 kbit/s | every 4 s |
+| High | 5.0 / 8.4 Mbit/s | linear, 0.08 bits/pixel/frame | 192 kbit/s | every 2 s |
+| Maximum | 11.2 / 18.8 Mbit/s | linear, 0.18 bits/pixel/frame | 192 kbit/s | every 2 s |
 
-| Recording | Compact | Standard | High |
-| --- | --- | --- | --- |
-| 1080p 30 FPS | ~0.45 GB | ~0.9 GB | ~3.5 GB |
-| 1080p 60 FPS | ~0.75 GB | ~1.5 GB | ~5.8 GB |
-| 1440p 30 FPS | ~0.7 GB | ~1.4 GB | ~6.0 GB |
+H.264 High profile, unconstrained VBR at that mean. Maximum uses the original Simple Recorder
+prototype's top quality level.
+</details>
 
-For a 1–3 hour class, **Compact at 30 FPS** is the one to pick. Slides, code and UI text stay
-readable; what you give up is crispness during fast motion, such as scrolling or video playing
-inside the recording. Recording stops cleanly if the disk gets close to full, and warns you
-before that.
+For a 1–3 hour class, **Compact or Standard at 30 FPS** is the one to pick. Recording stops
+cleanly if the disk gets close to full, and warns you before that.
 
 ### When something goes wrong
 
@@ -218,7 +239,7 @@ Or open `ParadisCapture.sln` in Visual Studio and press F5.
 dotnet test
 ```
 
-46 tests covering the parts where a bug is invisible until you watch a three-hour recording:
+49 tests covering the parts where a bug is invisible until you watch a three-hour recording:
 pause/resume timeline maths, audio clock drift over a simulated 3 hours at several device rates,
 silence gaps in loopback capture, surround downmixing, PCM formats, output sizing, file naming and the quality presets.
 They are plain .NET and run on any OS.
@@ -229,7 +250,7 @@ They are plain .NET and run on any OS.
 dotnet publish src/ParadisCapture -p:PublishProfile=win-x64-self-contained
 ```
 
-Produces a single self-contained `publish/win-x64/ParadisCapture.exe` (~75 MB, version 1.0.0) that runs on a PC
+Produces a single self-contained `publish/win-x64/ParadisCapture.exe` (~75 MB, version 1.0.1) that runs on a PC
 with no .NET installed. For a smaller, framework-dependent build:
 
 ```powershell
@@ -310,18 +331,36 @@ are in [DECISIONS.md](DECISIONS.md).
 ### What's verified and what isn't
 
 The recording engine (window, monitor and region capture, computer audio, pause/resume and A/V
-sync) has been tested on real Windows hardware. Version 1.0.0 added the quality presets, the
-rename and the branding on top of that engine without changing how capture, audio or timing
-work; those changes compile and are covered by the unit tests, and are next to be checked on
-Windows. See [DECISIONS.md](DECISIONS.md#what-to-check-in-100) for what to look at.
+sync) and version 1.0.0 as a whole have been tested on real Windows hardware, including a
+76-minute gameplay recording. Version 1.0.1 changes only the Settings styling, the quality
+presets (Compact and Standard are bit-for-bit unchanged) and the About view; capture, audio,
+timing and encoding code are untouched. See
+[DECISIONS.md](DECISIONS.md#what-to-check-in-101) for what to look at.
 
 ### Branding
 
-The wordmark reads PARADIS**E** CAPTURE with the final E scratched out: the author's surname is
-Paradis. It is drawn in XAML with Segoe UI and two strokes (`UI/Wordmark.xaml`), so it needs no
-image or font files. The product name everywhere else (files, folders, metadata) is plain
+The wordmark reads PARADIS**E** CAPTURE with a red, hand-drawn **Z** over the final E: the E
+is crossed out (the author's surname is Paradis, not Paradise), and the overlapping E/Z is a nod
+to Paradis EZ Utilities. It is drawn in XAML with Segoe UI and vector strokes
+(`UI/Wordmark.xaml`), so it needs no image or font files. The product name everywhere else (files, folders, metadata) is plain
 "Paradis Capture" / `ParadisCapture`. The icon is a P whose bowl is a recording dot; it was drawn
 for this project and is covered by the same licence as the code.
+
+### Paradis EZ Utilities
+
+Paradis Capture is part of [Paradis EZ Utilities](https://github.com/Paradis-EZ-Utilities), a
+small collection of free Windows tools. *Small. Simple. Free. EZ.* The product itself is still
+called Paradis Capture, and the exe is still `ParadisCapture.exe`.
+
+### Version history
+
+- **1.0.1** — Readable dark dropdowns, tooltips and menus in Settings. New **Maximum** preset;
+  **High** retuned to sit between Standard and Maximum; Standard and Compact unchanged. Device
+  dropdowns grey out when their audio source is off. About now shows Paradis EZ Utilities and a
+  **More from Paradis EZ Utilities** link. The wordmark's scratched-out E is now an overlapping
+  E/Z mark.
+- **1.0.0** — Renamed from Simple Recorder; Compact / Standard / High presets; new icon and
+  wordmark.
 
 ### Not built yet
 

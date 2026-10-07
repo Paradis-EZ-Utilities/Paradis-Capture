@@ -29,7 +29,7 @@
         <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="Frame rate" VerticalAlignment="Center" />
-      <ComboBox x:Name="FpsBox" Grid.Column="1" Width="150" SelectedIndex="0">
+      <ComboBox x:Name="FpsBox" Grid.Column="1" Width="190" SelectedIndex="0">
         <ComboBoxItem Content="30 FPS (recommended)" Tag="30" />
         <ComboBoxItem Content="60 FPS (games)" Tag="60" />
       </ComboBox>
@@ -40,10 +40,12 @@
         <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="Quality" VerticalAlignment="Center" />
-      <ComboBox x:Name="QualityBox" Grid.Column="1" Width="150" SelectedIndex="1">
+      <!-- Item order must match the VideoQuality enum (Compact, Standard, High, Maximum). -->
+      <ComboBox x:Name="QualityBox" Grid.Column="1" Width="190" SelectedIndex="1">
         <ComboBoxItem Content="Compact (classes)" Tag="Compact" />
-        <ComboBoxItem Content="Standard" Tag="Standard" />
+        <ComboBoxItem Content="Standard (recommended)" Tag="Standard" />
         <ComboBoxItem Content="High (games, motion)" Tag="High" />
+        <ComboBoxItem Content="Maximum (best quality)" Tag="Maximum" />
       </ComboBox>
     </Grid>
     <TextBlock x:Name="BitrateHint" Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap" />
@@ -57,7 +59,8 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="From" VerticalAlignment="Center" Margin="22,0,8,0" Foreground="{StaticResource TextDim}" />
-      <ComboBox x:Name="OutputDeviceBox" Grid.Column="1" DisplayMemberPath="Name" />
+      <ComboBox x:Name="OutputDeviceBox" Grid.Column="1" DisplayMemberPath="Name"
+                IsEnabled="{Binding IsChecked, ElementName=SystemAudioBox}" />
     </Grid>
 
     <CheckBox x:Name="MicrophoneCheck" Content="Record microphone" Margin="0,14,0,0" />
@@ -67,7 +70,8 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
       <TextBlock Text="From" VerticalAlignment="Center" Margin="22,0,8,0" Foreground="{StaticResource TextDim}" />
-      <ComboBox x:Name="MicrophoneDeviceBox" Grid.Column="1" DisplayMemberPath="Name" />
+      <ComboBox x:Name="MicrophoneDeviceBox" Grid.Column="1" DisplayMemberPath="Name"
+                IsEnabled="{Binding IsChecked, ElementName=MicrophoneCheck}" />
     </Grid>
 
     <TextBlock Text="HOTKEYS" Style="{StaticResource Caption}" Margin="0,20,0,6" />
@@ -104,10 +108,10 @@
               Margin="0,18,0,0" />
 
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
-      <TextBlock Style="{StaticResource Caption}" Text="About" Cursor="Hand" VerticalAlignment="Center"
-                 TextDecorations="Underline" MouseLeftButtonUp="OnShowAbout" Margin="0,0,14,0" />
-      <TextBlock Style="{StaticResource Caption}" Text="Open log folder" Cursor="Hand" VerticalAlignment="Center"
-                 TextDecorations="Underline" MouseLeftButtonUp="OnOpenLogs" Margin="0,0,16,0" />
+      <TextBlock Style="{StaticResource LinkText}" Text="About" VerticalAlignment="Center"
+                 MouseLeftButtonUp="OnShowAbout" Margin="0,0,14,0" />
+      <TextBlock Style="{StaticResource LinkText}" Text="Open log folder" VerticalAlignment="Center"
+                 MouseLeftButtonUp="OnOpenLogs" Margin="0,0,16,0" />
       <Button Style="{StaticResource FlatButton}" Content="Cancel" Padding="14,7" Click="OnCancel" IsCancel="True" />
       <Button Style="{StaticResource FlatButton}" Content="Save" Padding="18,7" Margin="8,0,0,0"
               Click="OnSave" IsDefault="True" />
@@ -123,13 +127,30 @@
         <TextBlock Text="Simple Screen &amp; Audio Recorder" Style="{StaticResource Caption}" FontSize="12" Margin="1,1,0,0" />
       </StackPanel>
     </StackPanel>
-    <TextBlock x:Name="VersionText" Text="Version 1.0.0" Margin="0,18,0,0" />
-    <TextBlock Text="A small, local Windows recording utility." Margin="0,12,0,0" />
-    <TextBlock Text="No accounts. No telemetry. No uploads." Margin="0,2,0,0" />
-    <TextBlock Text="Created by D.Y. Paradis" Margin="0,12,0,0" />
-    <TextBlock Style="{StaticResource Caption}" Margin="0,16,0,0" TextWrapping="Wrap"
+    <TextBlock x:Name="VersionText" Text="Version 1.0.1" Margin="0,18,0,0" />
+    <TextBlock Text="Created by D.Y. Paradis" Margin="0,2,0,0" />
+
+    <!-- The umbrella collection this app belongs to. -->
+    <Border Margin="0,16,0,0" Padding="14,12" CornerRadius="6" Background="{StaticResource Surface}"
+            BorderBrush="{StaticResource Border}" BorderThickness="1">
+      <StackPanel>
+        <TextBlock Style="{StaticResource Caption}" Text="PART OF" />
+        <TextBlock Text="Paradis EZ Utilities" FontSize="14" FontWeight="SemiBold" Margin="0,2,0,0" />
+        <TextBlock Style="{StaticResource Caption}" FontSize="12" Margin="0,6,0,0">
+          <Run Text="Small. Simple. Free." /><Run Text="  EZ." FontWeight="SemiBold" Foreground="{StaticResource Accent}" />
+        </TextBlock>
+        <TextBlock x:Name="MoreLink" Style="{StaticResource LinkText}" FontSize="12" Margin="0,10,0,0"
+                   HorizontalAlignment="Left" Text="More from Paradis EZ Utilities ↗"
+                   MouseLeftButtonUp="OnMoreFromParadis" />
+        <TextBlock x:Name="MoreLinkStatus" Style="{StaticResource Caption}" Margin="0,6,0,0" TextWrapping="Wrap"
+                   Visibility="Collapsed" />
+      </StackPanel>
+    </Border>
+
+    <TextBlock Text="No accounts. No telemetry. No uploads." Margin="0,16,0,0" />
+    <TextBlock Style="{StaticResource Caption}" Margin="0,12,0,0" TextWrapping="Wrap"
                Text="Uses NAudio and Vortice.Windows (MIT License). Video and audio are encoded by Windows' own H.264 and AAC encoders. See THIRD_PARTY_NOTICES.md." />
-    <Button Style="{StaticResource FlatButton}" Content="Back" Padding="18,7" Margin="0,20,0,0"
+    <Button Style="{StaticResource FlatButton}" Content="Back" Padding="18,7" Margin="0,18,0,0"
             HorizontalAlignment="Right" Click="OnHideAbout" />
   </StackPanel>
   </Grid>

@@ -1,5 +1,6 @@
-<!-- The Paradis Capture wordmark: "PARADISE" with the final E scratched out, then "CAPTURE".
-     Drawn with Segoe UI and two strokes, so it needs no image or font files. Set Height to size it. -->
+<!-- The Paradis Capture wordmark: "PARADISE" with a red Z drawn over the final E (the E is
+     crossed out, and the E/Z overlap nods to Paradis EZ Utilities), then "CAPTURE".
+     Drawn with Segoe UI and vector strokes, so it needs no image or font files. Set Height to size it. -->
 <UserControl x:Class="ParadisCapture.UI.Wordmark"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -11,13 +12,23 @@
                  Foreground="{StaticResource Text}" />
       <Grid>
         <TextBlock Text="E" FontFamily="Segoe UI" FontWeight="Bold" FontSize="28"
-                   Foreground="{StaticResource TextDim}" Opacity="0.6" />
-        <!-- Two quick hand-drawn strokes across the cap height of the E. -->
-        <Path Stretch="Fill" Margin="-3,8,-3,5" Stroke="{StaticResource Record}" StrokeThickness="2.6"
-              StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-              Data="M0,8 C3,6.6 6.4,3.6 10,0.6 M0.8,9.4 C4,7.6 7,5.2 10.4,2.6" />
+                   Foreground="{StaticResource TextDim}" Opacity="0.85" />
+        <!-- A hand-drawn red Z over the E: it reads both as the E being crossed out and as "EZ".
+             The Z starts inside the E and runs past its right side; the inner Viewbox maps the
+             13 × 9.7 drawing onto the E's cap height. -->
+        <Viewbox Stretch="Fill" Margin="-3,8,-7,5" IsHitTestVisible="False">
+          <Canvas Width="13" Height="9.7">
+            <Path Stroke="{StaticResource Record}" StrokeThickness="0.9" StrokeLineJoin="Round"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Data="M4.6,2.0 C7,1.3 9.4,0.6 11.8,0 L0.6,9.4 C4.4,8.2 8.4,7.7 12.6,7.4" />
+            <!-- Thin second strokes along the bars, for a quick brush feel. -->
+            <Path Stroke="{StaticResource Record}" StrokeThickness="0.47" Opacity="0.85"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Data="M3.6,2.9 C5.8,2.2 8,1.6 10,1.2 M5,9.0 C7.8,8.4 10.4,8.2 13,8.2" />
+          </Canvas>
+        </Viewbox>
       </Grid>
-      <TextBlock Text="CAPTURE" FontFamily="Segoe UI" FontWeight="Light" FontSize="28" Margin="9,0,0,0"
+      <TextBlock Text="CAPTURE" FontFamily="Segoe UI" FontWeight="Light" FontSize="28" Margin="12,0,0,0"
                  Foreground="{StaticResource Text}" />
     </StackPanel>
   </Viewbox>

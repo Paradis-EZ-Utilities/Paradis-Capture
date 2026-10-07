@@ -35,6 +35,24 @@ public static class Dialogs
             : MessageBox.Show(message, caption, buttons, icon);
     }
 
+    /// <summary>
+    /// Opens a web address in the user's default browser. Returns false (and logs why) if Windows
+    /// couldn't open it, so the caller can show the address instead.
+    /// </summary>
+    public static bool OpenUrl(string url)
+    {
+        try
+        {
+            using var _ = Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Could not open {url} in the default browser", ex);
+            return false;
+        }
+    }
+
     /// <summary>Opens a folder in File Explorer, optionally selecting a file inside it.</summary>
     public static void RevealInExplorer(string path)
     {

@@ -131,9 +131,10 @@ thing FFmpeg would produce, from the same hardware encoder.
 than x264. For screen recording at these bitrates that difference is not visible. Media
 Foundation's error reporting is also raw HRESULTs, which is why `FriendlyErrors` exists.
 
-## 7. Three named presets; bitrate is computed, never asked about
+## 7. Four named presets; bitrate is computed, never asked about
 
-**Decision.** Settings offers **Compact**, **Standard** (the default) and **High**.
+**Decision.** Settings offers **Compact**, **Standard** (the default), **High** and (since
+1.0.1) **Maximum**.
 `EncoderSettings` turns the preset, the output size and the frame rate into a mean video bitrate,
 a keyframe interval and an AAC bitrate. The encoder runs in unconstrained VBR at that mean.
 
@@ -141,9 +142,10 @@ a keyframe interval and an AAC bitrate. The encoder runs in unconstrained VBR at
 | --- | --- | --- | --- | --- |
 | Compact | 0.9 Mbit/s | `(pixels / 1080p)^0.8` | 4 s | 96 kbit/s |
 | Standard | 1.8 Mbit/s | `(pixels / 1080p)^0.8` | 4 s | 128 kbit/s |
-| High | 7.5 Mbit/s | linear (0.12 bits/pixel/frame) | 2 s | 192 kbit/s |
+| High | 5.0 Mbit/s | linear (0.08 bits/pixel/frame) | 2 s | 192 kbit/s |
+| Maximum | 11.2 Mbit/s | linear (0.18 bits/pixel/frame) | 2 s | 192 kbit/s |
 
-All three weight frame rate as `(fps / 30)^0.75`, because consecutive frames at 60 FPS are more
+All four weight frame rate as `(fps / 30)^0.75`, because consecutive frames at 60 FPS are more
 alike than at 30.
 
 **Why.** "I should not need to understand bitrate to get a good recording", and real recordings
@@ -158,12 +160,21 @@ three-hour class.
   of it, a scroll briefly uses more. A constant bitrate would waste bits on still slides and
   starve scrolling.
 - **Sub-linear size scaling for Compact/Standard.** A 4K screen of text doesn't carry four times
-  the information of a 1080p one, so they scale by `pixels^0.8`. High keeps the original linear
-  formula exactly, so it records at the quality that was already tested and liked.
+  the information of a 1080p one, so they scale by `pixels^0.8`. High and Maximum are for
+  motion, where every pixel changes, so they scale linearly with the pixel count.
+- **1.0.1 retune.** Real-world 1.0.0 use showed Standard is right for the main use (1080p30
+  gameplay ~0.9 GB/h, regions ~0.5 GB/h, text readable), so Compact and Standard are kept
+  bit-for-bit (a unit test pins the 1.0.0 formula). Users wanted a genuinely high-fidelity
+  option like the original prototype, whose default was 0.12 and top level ("Very high") 0.18
+  bits/pixel/frame. **Maximum** takes the prototype's top level, 0.18, so it is at least as
+  good as anything the prototype recorded. **High** moved from 0.12 to 0.08 (the prototype's
+  lowest level, ~2.8× Standard at 1080p30) so the four presets step up evenly
+  (1.8 → 5.0 → 11.2 Mbit/s) instead of High and Maximum being near neighbours. A 1.0.0 settings
+  file that says High now gets the new High.
 - **Longer keyframe interval for Compact/Standard.** On a mostly still screen, keyframes are a
   large share of the file; 4 s instead of 2 s saves a lot. The costs are coarser seeking and up to
   ~4 s lost if the PC dies mid-recording (see §8), both fine for a lecture.
-- **Floors** (0.3 / 0.6 / 1.5 Mbit/s) keep a tiny region from getting a uselessly small bitrate.
+- **Floors** (0.3 / 0.6 / 1.0 / 2.0 Mbit/s) keep a tiny region from getting a uselessly small bitrate.
 - **AAC at 96 / 128 / 192 kbit/s**: the Media Foundation AAC encoder accepts only 96, 128, 160 and
   192 kbit/s. If it ever rejects the lower rates, `MediaWriter` falls back to 192 kbit/s, which
   every earlier build used.
@@ -172,7 +183,10 @@ three-hour class.
 `CODECAPI_AVEncCommonQuality`). It would track content better in theory, but hardware encoders
 differ in whether they support it and in what a given quality number means, so file sizes would
 vary unpredictably between PCs; the existing rate-control path is already proven on real
-hardware. A mean-bitrate ceiling keeps "about this many GB per hour" true everywhere.
+hardware. A mean-bitrate ceiling keeps "about this many GB per hour" true everywhere. This was
+reconsidered for Maximum in 1.0.1 and rejected for the same reason: if a GPU's encoder rejects
+the quality mode, `MediaWriter` falls back to the encoder's defaults, which would silently make
+"Maximum" the worst preset on that PC.
 
 ## 8. Fragmented MP4 while recording, regular MP4 at the end
 
@@ -240,7 +254,20 @@ recording anything.
 It also drew a sharp line: Windows APIs do capture, conversion and encoding; our own code does
 timing and decisions.
 
-## 12. Threads
+## 12. Dark templates for every control that pops up (1.0.1)
+
+**Decision.** `Theme.xaml` gives `ComboBox`, `ComboBoxItem`, `ToolTip`, `ContextMenu` and
+`MenuItem` their own dark templates.
+
+**Why.** The theme's implicit `TextBlock` style makes all text light. WPF applies it to text
+inside the stock control templates too, so the stock ComboBox (light box, light drop-down) showed
+light text on a light background: the 1.0.0 Settings dropdowns were close to blank. The same
+applied to tooltips and the text-box right-click menu. Scoping the TextBlock style instead would
+mean touching every window; giving the handful of light-by-default controls dark surfaces fixes
+the cause in one file. Disabled dropdowns dim to 60% opacity, so they read as inactive but stay
+legible; the audio device dropdowns are disabled while their source is switched off.
+
+## 13. Threads
 
 **Decision.** Capture is driven by WGC's own free-threaded frame-arrived callback; each audio
 endpoint gets a dedicated thread; one thread paces and encodes video; one thread mixes and writes
@@ -255,6 +282,27 @@ Shared state is deliberately tiny: ring buffers with a lock, a lock around our o
 D3D11 immediate context, and interlocked fields for state and counters.
 
 ---
+
+## What to check in 1.0.1
+
+1.0.0 was tested extensively on real Windows (window, monitor and region capture, system audio,
+pause/resume, A/V sync, a 76-minute 1080p30 gameplay recording). 1.0.1 changes only:
+
+1. **Settings styling.** Frame rate, Quality, output device and microphone dropdowns: closed,
+   open, hovered, selected and disabled (turn off "Record computer audio" and its device
+   dropdown greys out). Tooltips on the main window and the right-click menu on the save-folder
+   box should also be dark with light text.
+2. **Presets.** Compact and Standard produce identical encoder settings to 1.0.0. High is now
+   5.0 Mbit/s at 1080p30 (was 7.5) and Maximum is new at 11.2 Mbit/s. The log line
+   `Output 1920x1080 @ 30 fps, Maximum: video 11.20 Mbit/s, audio 192 kbit/s, keyframe every 60
+   frames…` shows what was used. The capture, timing, audio and encoding code is unchanged.
+3. **About.** Version 1.0.1, the Paradis EZ Utilities block, and **More from Paradis EZ
+   Utilities**, which opens https://github.com/Paradis-EZ-Utilities in the default browser. If
+   that fails, the address is shown under the link and copied to the clipboard.
+4. **Version resource.** File and product version 1.0.1.
+5. **Wordmark.** The scratched-out E in the main window header and in About is now a red Z
+   drawn over the E (`UI/Wordmark.xaml`), sized to the E's cap height. Check it reads as both a
+   crossed-out E and "EZ" at both sizes, and that the Z doesn't touch "CAPTURE".
 
 ## What to check in 1.0.0
 

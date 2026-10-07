@@ -22,7 +22,7 @@ public partial class SettingsWindow : Window
 
         FolderBox.Text = settings.SaveFolder;
         FpsBox.SelectedIndex = settings.FrameRate == 60 ? 1 : 0;
-        QualityBox.SelectedIndex = (int)settings.Quality;
+        QualityBox.SelectedIndex = Math.Clamp((int)settings.Quality, 0, QualityBox.Items.Count - 1);
         CursorBox.IsChecked = settings.CaptureCursor;
         SystemAudioBox.IsChecked = settings.RecordSystemAudio;
         MicrophoneCheck.IsChecked = settings.RecordMicrophone;
@@ -83,8 +83,9 @@ public partial class SettingsWindow : Window
         string purpose = quality switch
         {
             VideoQuality.Compact => "Smallest files, for lectures, slides and code. Text stays sharp; fast motion looks softer.",
-            VideoQuality.High => "Largest files, for games, animation and fast motion.",
-            _ => "Good for most desktop recording.",
+            VideoQuality.High => "Larger files, for games, animation and fast motion. Less smearing in fast scenes.",
+            VideoQuality.Maximum => "Best picture, largest files. For when quality matters more than disk space.",
+            _ => "Recommended. Good for classes, meetings and most desktop recording.",
         };
         BitrateHint.Text = $"{purpose} A full-screen 1080p recording uses at most about {gb:F1} GB per hour, " +
                            "and less when the screen is mostly still. Resolution is never reduced.";
@@ -92,7 +93,7 @@ public partial class SettingsWindow : Window
 
     private int SelectedFps() => FpsBox.SelectedIndex == 1 ? 60 : 30;
 
-    private VideoQuality SelectedQuality() => (VideoQuality)Math.Clamp(QualityBox.SelectedIndex, 0, 2);
+    private VideoQuality SelectedQuality() => (VideoQuality)Math.Clamp(QualityBox.SelectedIndex, 0, (int)VideoQuality.Maximum);
 
     private void OnBrowse(object sender, RoutedEventArgs e)
     {
@@ -166,6 +167,27 @@ public partial class SettingsWindow : Window
     {
         AboutPanel.Visibility = Visibility.Collapsed;
         SettingsPanel.Visibility = Visibility.Visible;
+    }
+
+    private void OnMoreFromParadis(object sender, MouseButtonEventArgs e)
+    {
+        MoreLinkStatus.Visibility = Visibility.Collapsed;
+        if (Dialogs.OpenUrl(AppInfo.CollectionUrl)) return;
+
+        // No browser could be started: show the address (and put it on the clipboard) instead.
+        bool copied = false;
+        try
+        {
+            Clipboard.SetText(AppInfo.CollectionUrl);
+            copied = true;
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Could not copy the link to the clipboard", ex);
+        }
+        MoreLinkStatus.Text = $"Windows couldn't open your browser. Visit {AppInfo.CollectionUrl}" +
+                              (copied ? " (the link is copied)." : ".");
+        MoreLinkStatus.Visibility = Visibility.Visible;
     }
 
     private void OnOpenLogs(object sender, MouseButtonEventArgs e) => Dialogs.RevealInExplorer(Log.Directory);
