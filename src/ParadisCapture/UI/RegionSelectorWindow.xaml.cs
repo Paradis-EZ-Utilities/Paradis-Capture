@@ -63,11 +63,7 @@ public partial class RegionSelectorWindow : Window
         base.OnSourceInitialized(e);
         var hwnd = new WindowInteropHelper(this).Handle;
 
-        // Never let the selection overlay show up in a recording.
-        if (!NativeMethods.SetWindowDisplayAffinity(hwnd, NativeMethods.WDA_EXCLUDEFROMCAPTURE))
-        {
-            Log.Info("This Windows build can't exclude the region overlay from capture; it is only visible before recording starts anyway.");
-        }
+        // Not excluded from capture: the overlay only exists before a recording starts.
 
         // Position in physical pixels; WPF's own Left/Top are DIPs relative to the primary monitor.
         var b = _monitor.Bounds;

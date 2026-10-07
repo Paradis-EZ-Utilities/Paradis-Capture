@@ -12,14 +12,14 @@ public static class AppInfo
     public const string CollectionName = "Paradis EZ Utilities";
     public const string CollectionUrl = "https://github.com/Paradis-EZ-Utilities";
 
-    /// <summary>"1.0.1" — the informational version, without any build suffix.</summary>
+    /// <summary>"1.0.2" — the informational version, without any build suffix.</summary>
     public static string Version { get; } = ReadVersion();
 
     private static string ReadVersion()
     {
         var asm = typeof(AppInfo).Assembly;
         string? v = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        if (string.IsNullOrEmpty(v)) return asm.GetName().Version?.ToString(3) ?? "1.0.1";
+        if (string.IsNullOrEmpty(v)) return asm.GetName().Version?.ToString(3) ?? "1.0.2";
         int plus = v.IndexOf('+');
         return plus >= 0 ? v[..plus] : v;
     }

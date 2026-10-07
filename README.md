@@ -1,6 +1,6 @@
 # Paradis Capture
 
-**Simple Screen & Audio Recorder** · version 1.0.1 · Windows 10 (2004+) and 11, 64-bit
+**Simple Screen & Audio Recorder** · version 1.0.2 · Windows 10 (2004+) and 11, 64-bit
 
 Part of [**Paradis EZ Utilities**](https://github.com/Paradis-EZ-Utilities): small, simple, free.
 EZ.
@@ -26,7 +26,7 @@ limit and no watermark. No streaming, scenes or overlays either: it records and 
 
 ### Getting it running
 
-Unzip `ParadisCapture-v1.0.1.zip` anywhere (your Desktop, Documents, a USB stick) and run
+Unzip `ParadisCapture-v1.0.2.zip` anywhere (your Desktop, Documents, a USB stick) and run
 `ParadisCapture.exe`. There's nothing to install: it carries its own copy of .NET. To build it
 yourself, see the [developer instructions](#for-developers).
 
@@ -250,7 +250,7 @@ They are plain .NET and run on any OS.
 dotnet publish src/ParadisCapture -p:PublishProfile=win-x64-self-contained
 ```
 
-Produces a single self-contained `publish/win-x64/ParadisCapture.exe` (~75 MB, version 1.0.1) that runs on a PC
+Produces a single self-contained `publish/win-x64/ParadisCapture.exe` (~75 MB, version 1.0.2) that runs on a PC
 with no .NET installed. For a smaller, framework-dependent build:
 
 ```powershell
@@ -305,7 +305,7 @@ tests/
 | Computer audio | WASAPI loopback capture (shared mode) |
 | Microphone | WASAPI capture (shared mode) |
 | Global hotkeys | `RegisterHotKey` |
-| Keeping our windows out of recordings | `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` |
+| Keeping the recording bar out of recordings | `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` |
 | Per-monitor DPI | `GetDpiForMonitor`, PerMonitorV2 in the app manifest |
 | Frame pacing | `CreateWaitableTimerEx(HIGH_RESOLUTION)` |
 
@@ -334,8 +334,8 @@ The recording engine (window, monitor and region capture, computer audio, pause/
 sync) and version 1.0.0 as a whole have been tested on real Windows hardware, including a
 76-minute gameplay recording. Version 1.0.1 changes only the Settings styling, the quality
 presets (Compact and Standard are bit-for-bit unchanged) and the About view; capture, audio,
-timing and encoding code are untouched. See
-[DECISIONS.md](DECISIONS.md#what-to-check-in-101) for what to look at.
+timing and encoding code are untouched. Version 1.0.2 only narrows which window is hidden from
+captures. See [DECISIONS.md](DECISIONS.md#what-to-check-in-102) for what to look at.
 
 ### Branding
 
@@ -354,6 +354,10 @@ called Paradis Capture, and the exe is still `ParadisCapture.exe`.
 
 ### Version history
 
+- **1.0.2** — Paradis Capture now shows up in screenshots and other screen recorders. The main
+  window, Settings, About and the region overlay are never hidden from capture; only the small
+  recording bar is, and only while a recording is running. The main window now hides just
+  before recording starts rather than just after.
 - **1.0.1** — Readable dark dropdowns, tooltips and menus in Settings. New **Maximum** preset;
   **High** retuned to sit between Standard and Maximum; Standard and Compact unchanged. Device
   dropdowns grey out when their audio source is off. About now shows Paradis EZ Utilities and a

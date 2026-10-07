@@ -225,19 +225,25 @@ immediately. Capture and cropping happen in physical pixels, so selection does t
 A region is cropped from one monitor's capture, so a selection can't span two monitors. Cropping
 also means the recording is the source's own pixels at 1:1 — no scaling, no softness.
 
-## 10. Our own windows are excluded from capture, not hidden
+## 10. Only the recording bar is excluded from capture, and only while recording
 
-**Decision.** The main window, the recording bar and the region overlay all set
-`WDA_EXCLUDEFROMCAPTURE`.
+**Decision.** The recording bar sets `WDA_EXCLUDEFROMCAPTURE` when it is created (it only exists
+while a recording runs) and resets it to `WDA_NONE` when the recording ends. Every other window
+(main window, Settings, About, the region overlay, dialogs) is never excluded. The main window
+hides itself just before the recording starts and comes back when it ends.
 
-**Why.** The brief says the recorder's own control window must not appear in the recording. Hiding
-it would work but leaves the user with nothing to click. `WDA_EXCLUDEFROMCAPTURE` makes a window
-invisible to capture while fully visible on screen — the recording bar can sit on top of what's
-being recorded without being in it. The tray option stays, for people who want nothing on screen
-at all.
+**Why.** The brief says the recorder's own controls must not appear in the recording. Hiding the
+bar would work but leaves the user with nothing to click. `WDA_EXCLUDEFROMCAPTURE` makes a window
+invisible to capture while fully visible on screen, so the bar can sit on top of what's being
+recorded without being in it. The tray option stays, for people who want nothing on screen at all.
 
-Where the Windows build doesn't support it, the app says so and suggests the tray instead rather
-than silently recording its own UI.
+Up to 1.0.1 the main window and region overlay were excluded too. That made the app invisible in
+screenshots and other recorders, which made demos and bug reports impossible (1.0.2 fix). The
+main window doesn't need the flag because it is hidden during recording anyway, and the overlay
+only exists before a recording starts.
+
+Where the Windows build doesn't support the flag, the bar says so and suggests the tray instead
+rather than silently recording itself.
 
 ## 11. A separate platform-neutral core project
 
@@ -282,6 +288,17 @@ Shared state is deliberately tiny: ring buffers with a lock, a lock around our o
 D3D11 immediate context, and interlocked fields for state and counters.
 
 ---
+
+## What to check in 1.0.2
+
+1.0.2 changes only which window is excluded from capture (`MainWindow`, `RegionSelectorWindow`,
+`RecordingBarWindow`) plus hiding the main window just before, instead of just after, recording
+starts. Capture, audio, timing and encoding code are untouched.
+
+1. **Idle.** Win+Shift+S or another recorder shows the main window, Settings and About normally.
+2. **Recording.** The recording bar is on screen but not in the recording; the main window is
+   hidden and doesn't appear in the first frames.
+3. **After stopping.** Everything is capturable again.
 
 ## What to check in 1.0.1
 

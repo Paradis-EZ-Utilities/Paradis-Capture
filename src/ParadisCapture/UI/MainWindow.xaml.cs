@@ -41,14 +41,8 @@ public partial class MainWindow : Window
         _hotkeys = new HotkeyService(this);
         _hotkeys.Pressed += OnHotkey;
         ApplyHotkeys(reportConflicts: true);
-        KeepOutOfRecordings();
-    }
-
-    /// <summary>Keeps this window out of monitor and region recordings.</summary>
-    private void KeepOutOfRecordings()
-    {
-        IntPtr hwnd = new WindowInteropHelper(this).Handle;
-        Interop.NativeMethods.SetWindowDisplayAffinity(hwnd, Interop.NativeMethods.WDA_EXCLUDEFROMCAPTURE);
+        // Deliberately not excluded from capture: the main window (and Settings/About) must show up in
+        // screenshots and other recorders. It hides itself while recording instead.
     }
 
     // ------------------------------------------------------------- target selection
@@ -272,15 +266,23 @@ public partial class MainWindow : Window
         _controller.Finished += OnRecordingFinished;
 
         StatusText.Text = "";
+        // Hide before capture starts so the (capturable) main window isn't in the first frames.
+        Hide();
         try
         {
             _controller.Start();
-            Hide();
         }
         catch (RecorderException ex)
         {
             _controller = null;
+            Restore();
             Dialogs.Error(this, "Couldn't start recording", ex.UserMessage);
+        }
+        catch
+        {
+            _controller = null;
+            Restore();
+            throw;
         }
         finally
         {

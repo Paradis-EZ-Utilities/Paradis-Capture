@@ -12,7 +12,8 @@ namespace ParadisCapture.UI;
 
 /// <summary>
 /// The small always-on-top bar shown while recording: red dot, elapsed time, Pause and Stop.
-/// Excluded from capture, so it never appears in the recording.
+/// The only window excluded from capture, and only while it exists (i.e. while recording), so it
+/// never appears in the recording.
 /// </summary>
 public partial class RecordingBarWindow : Window
 {
@@ -116,6 +117,8 @@ public partial class RecordingBarWindow : Window
     public void CloseBar()
     {
         _timer.Stop();
+        // Recording is over: drop the capture exclusion so nothing of ours stays hidden from captures.
+        NativeMethods.SetWindowDisplayAffinity(new WindowInteropHelper(this).Handle, NativeMethods.WDA_NONE);
         _closingForReal = true;
         Close();
     }

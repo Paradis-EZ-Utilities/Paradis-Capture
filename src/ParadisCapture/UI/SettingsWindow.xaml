@@ -127,7 +127,7 @@
         <TextBlock Text="Simple Screen &amp; Audio Recorder" Style="{StaticResource Caption}" FontSize="12" Margin="1,1,0,0" />
       </StackPanel>
     </StackPanel>
-    <TextBlock x:Name="VersionText" Text="Version 1.0.1" Margin="0,18,0,0" />
+    <TextBlock x:Name="VersionText" Text="Version 1.0.2" Margin="0,18,0,0" />
     <TextBlock Text="Created by D.Y. Paradis" Margin="0,2,0,0" />
 
     <!-- The umbrella collection this app belongs to. -->
