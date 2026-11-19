@@ -20,6 +20,8 @@ and resume, record at 30 or 60 FPS, and pick a **Compact**, **Standard**, **High
 It runs entirely on your PC. There's no account, no telemetry, no uploads, no recording time
 limit and no watermark. No streaming, scenes or overlays either: it records and saves the file.
 
+- Join my discord if you have any issues; https://discord.gg/AGJ79FQvTm
+
 ---
 
 ## For normal use
